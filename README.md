@@ -1,0 +1,1 @@
+# TPT-coefficients-for-spherocylindrical-molecules
