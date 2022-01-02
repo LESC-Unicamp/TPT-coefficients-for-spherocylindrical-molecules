@@ -1,5 +1,5 @@
 ! ############################################################################################### !
-!              Canonical Monte Carlo algorithm for ellipsoid-of-revolution molecules              !
+!                 Canonical Monte Carlo algorithm for spherocylindrical molecules                 !
 !        This code contains all functions used in the main program and in the subroutines.        !
 !                                                                                                 !
 ! Version number: 1.0.0                                                                           !
@@ -11,11 +11,11 @@
 !                             Original Developer: Joyce Tavares Lopes                             !
 !                             Supervisor: Luís Fernando Mercier Franco                            !
 !                             --------------------------------------                              !
-!                                            June 20th                                            !
+!                                        January 2nd, 2022                                        !
 ! ############################################################################################### !
-! Main Reference:                     B. J. Berne, P. Pechukas                                    !
-!                                  J. Chem. Phys. 56, 4213 (1972)                                 !
-!                                      DOI: 10.1063/1.1677837                                     !
+! Main References:                        C. Vega, S. Lago                                        !
+!                                 Computers Chem. 18, 55-59 (1993)                                !
+!                                DOI: 10.1016/0097-8485(94)80023-5                                !
 ! ############################################################################################### !
 ! Disclaimer note: Authors assume no responsibility or liability for the use of this code.        !
 ! ############################################################################################### !
