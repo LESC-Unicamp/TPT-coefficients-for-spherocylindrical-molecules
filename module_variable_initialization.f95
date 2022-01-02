@@ -1,5 +1,5 @@
 ! ############################################################################################### !
-!              Canonical Monte Carlo algorithm for spherocylindrical molecules                    !
+!                 Canonical Monte Carlo algorithm for spherocylindrical molecules                 !
 !      This module initialize common variables (number of particles, reduced number density,      !
 !       reduced temperature etc.), Monte Carlo parameters (total number of cycles, number of      !
 ! equilibration cycles etc.), and Block Averaging parameters (maximum/minimum number of blocks).  !
