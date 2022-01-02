@@ -12,7 +12,7 @@
 !                             Original Developer: Joyce Tavares Lopes                             !
 !                             Supervisor: Luís Fernando Mercier Franco                            !
 !                             --------------------------------------                              !
-!                                            January 2nd                                          !
+!                                        January 2nd, 2022                                        !
 ! ############################################################################################### !
 ! Main References:                  M. P. Allen, D. J. Tildesley                                  !
 !                           Oxford University Press, 2nd Edition (2017)                           !
