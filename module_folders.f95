@@ -1,5 +1,5 @@
 ! ############################################################################################### !
-!              Canonical Monte Carlo algorithm for ellipsoid-of-revolution molecules              !
+!              Canonical Monte Carlo algorithm for spherocylindrical molecules                    !
 !           This module creates folders and subfolders to organize simulation results.            !
 ! Directories are created by executing a shell command via an intrinsic function called 'system'. !
 !               Please note that which shell is used to invoke the command line is                !
@@ -17,7 +17,7 @@
 !                             Original Developer: Joyce Tavares Lopes                             !
 !                             Supervisor: Luís Fernando Mercier Franco                            !
 !                             --------------------------------------                              !
-!                                            June 20th                                            !
+!                                            January 2nd                                          !
 ! ############################################################################################### !
 ! Disclaimer note: Authors assume no responsibility or liability for the use of this code.        !
 ! ############################################################################################### !
@@ -189,39 +189,38 @@ module folders
 	end subroutine date_folders
 
 	! *************************************************************************************** !
-	!                    Initialization of attractive parameter subfolders                    !
+	!                    Initialization of repulsive parameter subfolders                     !
 	! *************************************************************************************** !
-	subroutine lambda_folders()
+	subroutine n_folders()
 
 		implicit none
 
 		! *******************************************************************************
-		! Attractive parameter format
-		!  Might be necessary to change if the number of decimal places is higher than 2 or
-		!  the number of characters is higher than 4.
+		! Repulsive parameter format (free-width)
+		!  Might be necessary to change if the number of decimal places is higher than 5.
 		! *******************************************************************************
-		format_lamb = "(F4.2)"
+		format_n = "(F0.5)"
 
 		! *******************************************************************************
-		! Attractive parameter subfolders
+		! Repulsive parameter subfolders
 		! *******************************************************************************
-		do counter_lambda = 1, n_lambda
-			write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
+		do counter_n = 1, n_n
+			write ( descriptor_n, format_n ) n_repulsive(counter_n)
 			! Parent folder: Potential
-			inquire ( FILE = "Potential/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
-			& 	  EXIST = lfexist(counter_lambda) )
-			if ( .not. lfexist(counter_lambda) ) then
-				call system ( "mkdir Potential/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/" )
+			inquire ( FILE = "Potential/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/", &
+			& 	  EXIST = lfexist(counter_n) )
+			if ( .not. lfexist(counter_n) ) then
+				call system ( "mkdir Potential/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/" )
 			end if
 			! Parent folder: TPT Coefficients
-			inquire ( FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
-			&	  EXIST = lfexist(counter_lambda) )
-			if ( .not. lfexist(counter_lambda) ) then
-				call system ( "mkdir Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_" &
-			&		       //trim(descriptor_lamb)//"/" )
+			inquire ( FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/", &
+			&	  EXIST = lfexist(counter_n) )
+			if ( .not. lfexist(counter_n) ) then
+				call system ( "mkdir Perturbed_Coefficient/"//trim(descriptor_date)//"/n_" &
+			&		       //trim(descriptor_n)//"/" )
 			end if
 		end do
 
-	end subroutine lambda_folders
+	end subroutine n_folders
 
 end module folders
