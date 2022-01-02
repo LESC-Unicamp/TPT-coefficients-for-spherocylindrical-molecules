@@ -189,6 +189,41 @@ module folders
 	end subroutine date_folders
 
 	! *************************************************************************************** !
+	!                    Initialization of attractive parameter subfolders                    !
+	! *************************************************************************************** !
+	subroutine lambda_folders()
+
+		implicit none
+
+		! *******************************************************************************
+		! Attractive parameter format (free-width)
+		!  Might be necessary to change if the number of decimal places is higher than 5.
+		! *******************************************************************************
+		format_lamb = "(F0.5)"
+
+		! *******************************************************************************
+		! Attractive parameter subfolders
+		! *******************************************************************************
+		do counter_lambda = 1, n_lambda
+			write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
+			! Parent folder: Potential
+			inquire ( FILE = "Potential/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
+			& 	  EXIST = lfexist(counter_lambda) )
+			if ( .not. lfexist(counter_lambda) ) then
+				call system ( "mkdir Potential/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/" )
+			end if
+			! Parent folder: TPT Coefficients
+			inquire ( FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
+			&	  EXIST = lfexist(counter_lambda) )
+			if ( .not. lfexist(counter_lambda) ) then
+				call system ( "mkdir Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_" &
+			&		       //trim(descriptor_lamb)//"/" )
+			end if
+		end do
+
+	end subroutine lambda_folders
+
+	! *************************************************************************************** !
 	!                    Initialization of repulsive parameter subfolders                     !
 	! *************************************************************************************** !
 	subroutine n_folders()
