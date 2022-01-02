@@ -157,7 +157,7 @@ module globalvar
 	logical, dimension (3)	:: config_selec		! Checks the selected molecular configuration
 	logical, dimension (6)	:: fexist		! Checks whether folder exists or not
 	logical, dimension (7)	:: dfexist		! Checks whether date folders exist or not
-	logical, dimension (3)	:: sfexist		! Checks whether subfolder exists or not
+	logical, dimension (7)	:: sfexist		! Checks whether subfolder exists or not
 
 	! ***************************************************************************************
 	! Logical variables (allocatable)
