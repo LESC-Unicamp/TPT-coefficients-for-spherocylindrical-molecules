@@ -1,5 +1,5 @@
 ! ############################################################################################### !
-!              Canonical Monte Carlo algorithm for spherocylindrical molecules                    !
+!                 Canonical Monte Carlo algorithm for spherocylindrical molecules                 !
 !  This module allows the user to choose one of the stretched/narrowed molecular configurations:  !
 !             simple cube (SC), body-centered cube (BCC), or face-centered cube (FCC).            !
 !        Molecules will be then allocated in accordance to the selected crystal structure.        !
