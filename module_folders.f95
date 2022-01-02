@@ -1,5 +1,5 @@
 ! ############################################################################################### !
-!              Canonical Monte Carlo algorithm for spherocylindrical molecules                    !
+!                 Canonical Monte Carlo algorithm for spherocylindrical molecules                 !
 !           This module creates folders and subfolders to organize simulation results.            !
 ! Directories are created by executing a shell command via an intrinsic function called 'system'. !
 !               Please note that which shell is used to invoke the command line is                !
