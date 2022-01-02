@@ -103,6 +103,20 @@ module folders
 		if ( .not. fexist(3) ) then
 			call system ( "mkdir Potential" )
 		end if
+		
+		! Inquires whether a subfolder exists and stores the inquiry result in a logical variable
+		inquire ( FILE = "Potential/SW/", EXIST = sfexist(4) )
+		inquire ( FILE = "Potential/KH/", EXIST = sfexist(5) )
+
+		! *******************************************************************************
+		! Potential subfolders
+		! *******************************************************************************
+		if ( .not. sfexist(4) ) then
+			call system ( "mkdir Potential/SW/" )
+		end if
+		if ( .not. sfexist(5) ) then
+			call system ( "mkdir Potential/KH/" )
+		end if
 
 		! *******************************************************************************
 		! Ratio folder (holds information on the equilibration cycles, like maximum displacement adjustment)
@@ -141,6 +155,20 @@ module folders
 		if ( .not. fexist(6) ) then
 			call system ( "mkdir Perturbed_Coefficient" )
 		end if
+		
+		! Inquires whether a subfolder exists and stores the inquiry result in a logical variable
+		inquire ( FILE = "Perturbed_Coefficient/SW/", EXIST = sfexist(6) )
+		inquire ( FILE = "Perturbed_Coefficient/KH/", EXIST = sfexist(7) )
+
+		! *******************************************************************************
+		! TPT Coefficients subfolders
+		! *******************************************************************************
+		if ( .not. sfexist(6) ) then
+			call system ( "mkdir Perturbed_Coefficient/SW/" )
+		end if
+		if ( .not. sfexist(7) ) then
+			call system ( "mkdir Perturbed_Coefficient/KH/" )
+		end if
 
 	end subroutine inquire_folders
 
@@ -158,11 +186,13 @@ module folders
 
 		! Inquires whether the date subfolder exists and stores the inquiry result in a logical variable
 		inquire ( FILE = "Trajectories/"//trim(descriptor_date)//"/", EXIST = dfexist(2) )
-		inquire ( FILE = "Potential/"//trim(descriptor_date)//"/", EXIST = dfexist(3) )
-		inquire ( FILE = "Ratio/Translation/"//trim(descriptor_date)//"/", EXIST = dfexist(4) )
-		inquire ( FILE = "Ratio/Rotation/"//trim(descriptor_date)//"/", EXIST = dfexist(5) )
-		inquire ( FILE = "Order_Parameter/"//trim(descriptor_date)//"/", EXIST = dfexist(6) )
-		inquire ( FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/", EXIST = dfexist(7) )
+		inquire ( FILE = "Potential/SW/"//trim(descriptor_date)//"/", EXIST = dfexist(3) )
+		inquire ( FILE = "Potential/KH/"//trim(descriptor_date)//"/", EXIST = dfexist(4) )
+		inquire ( FILE = "Ratio/Translation/"//trim(descriptor_date)//"/", EXIST = dfexist(5) )
+		inquire ( FILE = "Ratio/Rotation/"//trim(descriptor_date)//"/", EXIST = dfexist(6) )
+		inquire ( FILE = "Order_Parameter/"//trim(descriptor_date)//"/", EXIST = dfexist(7) )
+		inquire ( FILE = "Perturbed_Coefficient/SW/"//trim(descriptor_date)//"/", EXIST = dfexist(8) )
+		inquire ( FILE = "Perturbed_Coefficient/KH/"//trim(descriptor_date)//"/", EXIST = dfexist(9) )
 
 		! *******************************************************************************
 		! Date subfolders
@@ -171,19 +201,25 @@ module folders
 			call system ( "mkdir Trajectories/"//trim(descriptor_date)//"/" )
 		end if
 		if ( .not. dfexist(3) ) then
-			call system ( "mkdir Potential/"//trim(descriptor_date)//"/" )
+			call system ( "mkdir Potential/SW/"//trim(descriptor_date)//"/" )
 		end if
 		if ( .not. dfexist(4) ) then
-			call system ( "mkdir Ratio/Translation/"//trim(descriptor_date)//"/" )
+			call system ( "mkdir Potential/KH/"//trim(descriptor_date)//"/" )
 		end if
 		if ( .not. dfexist(5) ) then
-			call system ( "mkdir Ratio/Rotation/"//trim(descriptor_date)//"/" )
+			call system ( "mkdir Ratio/Translation/"//trim(descriptor_date)//"/" )
 		end if
 		if ( .not. dfexist(6) ) then
-			call system ( "mkdir Order_Parameter/"//trim(descriptor_date)//"/" )
+			call system ( "mkdir Ratio/Rotation/"//trim(descriptor_date)//"/" )
 		end if
 		if ( .not. dfexist(7) ) then
-			call system ( "mkdir Perturbed_Coefficient/"//trim(descriptor_date)//"/" )
+			call system ( "mkdir Order_Parameter/"//trim(descriptor_date)//"/" )
+		end if
+		if ( .not. dfexist(8) ) then
+			call system ( "mkdir Perturbed_Coefficient/SW/"//trim(descriptor_date)//"/" )
+		end if
+		if ( .not. dfexist(9) ) then
+			call system ( "mkdir Perturbed_Coefficient/KH/"//trim(descriptor_date)//"/" )
 		end if
 
 	end subroutine date_folders
@@ -207,16 +243,17 @@ module folders
 		do counter_lambda = 1, n_lambda
 			write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
 			! Parent folder: Potential
-			inquire ( FILE = "Potential/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
+			inquire ( FILE = "Potential/SW/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
 			& 	  EXIST = lfexist(counter_lambda) )
 			if ( .not. lfexist(counter_lambda) ) then
-				call system ( "mkdir Potential/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/" )
+				call system ( "mkdir Potential/SW/"//trim(descriptor_date)// & 
+				&             "/Lambda_"//trim(descriptor_lamb)//"/" )
 			end if
 			! Parent folder: TPT Coefficients
-			inquire ( FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)//"/", &
-			&	  EXIST = lfexist(counter_lambda) )
+			inquire ( FILE = "Perturbed_Coefficient/SW/"//trim(descriptor_date)// &
+			&                "/Lambda_"//trim(descriptor_lamb)//"/", EXIST = lfexist(counter_lambda) )
 			if ( .not. lfexist(counter_lambda) ) then
-				call system ( "mkdir Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_" &
+				call system ( "mkdir Perturbed_Coefficient/SW/"//trim(descriptor_date)//"/Lambda_" &
 			&		       //trim(descriptor_lamb)//"/" )
 			end if
 		end do
@@ -242,16 +279,16 @@ module folders
 		do counter_n = 1, n_n
 			write ( descriptor_n, format_n ) n_repulsive(counter_n)
 			! Parent folder: Potential
-			inquire ( FILE = "Potential/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/", &
+			inquire ( FILE = "Potential/KH/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/", &
 			& 	  EXIST = lfexist(counter_n) )
 			if ( .not. lfexist(counter_n) ) then
-				call system ( "mkdir Potential/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/" )
+				call system ( "mkdir Potential/KH/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/" )
 			end if
 			! Parent folder: TPT Coefficients
-			inquire ( FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/", &
+			inquire ( FILE = "Perturbed_Coefficient/KH/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)//"/", &
 			&	  EXIST = lfexist(counter_n) )
 			if ( .not. lfexist(counter_n) ) then
-				call system ( "mkdir Perturbed_Coefficient/"//trim(descriptor_date)//"/n_" &
+				call system ( "mkdir Perturbed_Coefficient/KH/"//trim(descriptor_date)//"/n_" &
 			&		       //trim(descriptor_n)//"/" )
 			end if
 		end do
