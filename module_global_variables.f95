@@ -104,7 +104,7 @@ module globalvar
 	real*8, dimension (:), allocatable	:: lambda	! Attractive range parameter
 	real*8, dimension (:), allocatable	:: swrange	! Effective range of attraction
 	real*8, dimension (:), allocatable	:: n_repulsive	! Repulsive parameter
-	real*8, dimension (:), allocatable	:: v, vmc	! Potential energy array
+	real*8, dimension (:), allocatable	:: v, vi, vmc	! Potential energy array
 	real*8, dimension (:,:), allocatable	:: q, qmc	! Quaternion array
 	real*8, dimension (:,:), allocatable	:: r, rmc	! Position array
 	real*8, dimension (:,:), allocatable	:: e, emc	! Orientation array
