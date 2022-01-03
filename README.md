@@ -41,14 +41,13 @@ Luís Fernando Mercier Franco<br></p>
 
 # Canonical Monte Carlo algorithm for nonspherical molecules
 <p align="justify">
-This <i>NVT</i>-Monte Carlo algorithm was originally designed to test an equation of state developed for ellipsoidal molecules
- (<a href="https://doi.org/10.1021/acs.iecr.9b00766">Lopes and Franco, <b>Ind. Eng. Chem. Res.</b>, 58, 16, 6850–6859, 2019</a>). This thermodynamic model applies a
- perturbation theory, considering the reference fluid as hard ellipsoids of revolution interating via short-range repulsive
- forces according to the Hard Gaussian Overlap (HGO) approach (<a href="https://doi.org/10.1063/1.1677837">Berne and Pechukas, <b>J. Chem. Phys.</b>, 56, 4213, 1972</a>)
+This <i>NVT</i>-Monte Carlo algorithm was originally designed to test an equation of state developed for spherocylindrical molecules
+ (<a href="https://doi.org/10.1016/j.molliq.2021.115676">Lopes and Franco, <b>J. Mol. Liq.</b>, 330, 115676, 2021</a>). This thermodynamic model applies a
+ perturbation theory, considering the reference fluid as hard spherocylinders interacting via short-range repulsive
+ forces according to the Vega-Lago (VL) shortest distance algorithm (<a href="https://doi.org/10.1016/0097-8485(94)80023-5">Vega and Lago, <b>Comput. Chem.</b>, 18, 1, 55-59, 1994</a>)
  and the perturbed system ruled by attractive forces defined by a symmetrically spherical square-well potential. Our aim is to investigate
- the valid limits of reduced number density (&kappa;&rho;*) and ellipsoidal elongation (&kappa;) by calculating the first- and
- second-order perturbation coefficients, as well as the orientational ordering parameter of a uniaxial nematic phase. Please check our
- <a href="https://doi.org/10.1016/j.fluid.2021.113209">paper</a> for more details.
+ the valid limits of reduced number density ([1+L/D]&rho;*) and length-to-diameter aspect ratio (&kappa;) by calculating the first- and
+ second-order perturbation coefficients, as well as the orientational ordering parameter of a uniaxial nematic phase.
 </p><br>
 
 ## Contents
@@ -64,7 +63,7 @@ This <i>NVT</i>-Monte Carlo algorithm was originally designed to test an equatio
 ## Disclaimer
 <p align="justify">
 The authors make no warranties about the use of this software. The authors hold no liabilities for the use of this software. The authors do not 
- recommend the use of this software whatsoever. The algorithm is made freely available to clarify any details discussed in the <a href="https://doi.org/10.1016/j.fluid.2021.113209">paper</a>.
+ recommend the use of this software whatsoever. The algorithm is made freely available.
  All information contained herein regarding any specific methodology does not constitute or imply its endorsement or recommendation by the authors.
 </p>
 
@@ -101,22 +100,22 @@ The <code>-O3</code> option is an optimization flag that improves compilation pe
 
 ## Reporting Errors
 <p align="justify">
-If you spot an error in the program files and all other documentation, please submit an issue report using the <a href="https://github.com/nathanbsouza/montecarlo_hgosw/issues">Issues</a> tab.
+If you spot an error in the program files and all other documentation, please submit an issue report using the <a href="https://github.com/LESC-Unicamp/TPT-coefficients-for-spherocylindrical-molecules/issues">Issues</a> tab.
 </p>
 
 ## Data Input
 <p align="justify">
-Before running the code, the user should first prepare an input file named <code>mchgo_input.ini</code> containing most of the external variables.
- These variables are read by the module <a href="https://github.com/nathanbsouza/montecarlo_hgosw/blob/main/module_variable_initialization.f95">Variable Initialization</a>.
- An <a href="https://github.com/nathanbsouza/montecarlo_hgosw/blob/main/mchgo_input.ini">example</a> of an input file was provided and explained below
+Before running the code, the user should first prepare an input file named <code>mcvl_input.ini</code> containing most of the external variables.
+ These variables are read by the module <a href="https://github.com/LESC-Unicamp/TPT-coefficients-for-spherocylindrical-molecules/blob/main/module_variable_initialization.f95">Variable Initialization</a>.
+ An <a href="https://github.com/LESC-Unicamp/TPT-coefficients-for-spherocylindrical-molecules/blob/main/mcvl_input.ini">example</a> of an input file was provided and explained below
  (<code>d0</code> means double precision):
 </p>
 
 ```ini
 number_of_particles= 500
 reduced_temperature= 2.5d0
-n_lambda= 4
-lambda_values= 1.2d0 1.3d0 1.5d0 1.8d0 
+n_potential_param= 6
+n_potential_values= 7.d0 8.d0 9.d0 10.d0 11.d0 12.d0
 quaternion_angle= 0.d0
 max_steps= 20000000
 equilibration= 10000000
@@ -141,12 +140,12 @@ The entry <code>number_of_particles</code> corresponds to the number of particle
 The entry <code>reduced_temperature</code> corresponds to the reduced thermodynamic temperature <i>T*</i> of the system.
 </p>
 <p align="justify">
-The entry <code>n_lambda</code> corresponds to the number of attractive range parameters <i>&lambda;</i>. For instance, if the user wants to calculate the perturbed potential  
- for four different attractive range parameters (e.g. <i>1.2</i>, <i>1.3</i>, <i>1.5</i>, and <i>1.8</i>), then <code>n_lambda</code> must be equal to <b>4</b>.
+The entry <code>n_potential_param</code> corresponds to the number of attractive range parameters <i>&lambda;</i> of the Square-Well potential or the number of repulsive parameters <i>n</i> of the Kihara potential. For instance, if the user wants to calculate the perturbed potential  
+ for six different repulsive parameters (e.g. <i>7</i>, <i>8</i>, <i>9</i>, <i>10</i>, <i>11</i>, and <i>12</i>), then <code>n_potential_param</code> must be equal to <b>6</b>.
 </p>
 <p align="justify">
-The entry <code>lambda_values</code> corresponds to the values of the attractive range parameters. If the user selected multiple &lambda; in the previous entry, then all
- corresponding &lambda; values must be entered sequentially here, as shown in the example above. It does not necessarily have to be in ascending order.
+The entry <code>n_potential_values</code> corresponds to the values of the attractive range or repulsive parameters. If the user selected multiple <i>n</i> in the previous entry, then all
+ corresponding <i>n</i> values must be entered sequentially here, as shown in the example above. It does not necessarily have to be in ascending order.
 </p>
 <p align="justify">
 The entry <code>quaternion_angle</code> corresponds to the rotation angle of the molecules in the initial configuration. It is usually set to <b>0</b>, since all particles
@@ -184,20 +183,20 @@ The last three entries are inquiry variables. <code>trajectory_inquiry</code> in
 </p>
 
 <p align="justify">
-Reduced number density <code>&kappa;&rho;*</code> and elongation <code>&kappa;</code> must be provided by the user on the fly.
+Reduced number density <code>[1+L/D]&rho;*</code> and length-to-diameter aspect ratio <code>L/D</code> must be provided by the user on the fly.
 </p>
 
 ## Initial Configuration
 <p align="justify">
-The user is allowed to select one of three crystalline structures for the initial molecular configuration at the beginning of the simulation. Structures are either stretched, narrowed, or pure cubic geometries depending on the ellipsoidal elongation. The available structures are: simple cube (SC), body-centered cube (BCC), or face-centered cube (FCC). Like <code>&kappa;&rho;*</code> and <code>&kappa;</code> variables, the initial molecular configuration is also provided by the user on the fly.
+The user is allowed to select one of three crystalline structures for the initial molecular configuration at the beginning of the simulation. Structures are either stretched or pure cubic geometries depending on the spherocylindrical elongation. The available structures are: simple cube (SC), body-centered cube (BCC), or face-centered cube (FCC). Like <code>[1+L/D]&rho;*</code> and <code>L/D</code> variables, the initial molecular configuration is also provided by the user on the fly.
 </p>
 
 <p align="justify">
-The initial configuration (position and orientation of particles) is, by default, written out in an external file and is also properly formatted to be uploaded in OVITO. An example of these crystalline structures can be seen below for <code>&kappa;&rho;* = 0.5</code>.
+The initial configuration (position and orientation of particles) is, by default, written out in an external file and is also properly formatted to be uploaded in OVITO. An example of these crystalline structures can be seen below for <code>[1+L/D]&rho;* = 0.5</code>.
 </p>
 
 <em><p align="center">
-  <b>Figure 01-A</b>. Example of a simple cubic structure. Particles are hard spheres (<code>&kappa; = 1</code>). Number of particles: 512.<br>
+  <b>Figure 01-A</b>. Example of a simple cubic structure. Particles are hard spheres (<code>L/D = 0</code>). Number of particles: 512.<br>
   Click [here](https://user-images.githubusercontent.com/73966482/125833600-f8091b9c-a405-4ae3-9f24-013f221fe0d2.png) to zoom the figure in.
 </p></em>
 
@@ -208,14 +207,14 @@ The initial configuration (position and orientation of particles) is, by default
   Number of particles: 686. Click [here](https://user-images.githubusercontent.com/73966482/125834422-f91daed1-18b6-4a83-81cb-868aa0a0e59a.png) to zoom the figure in.
 </p></em>
 
-![BCC](https://user-images.githubusercontent.com/73966482/125834422-f91daed1-18b6-4a83-81cb-868aa0a0e59a.png)
+![BCC](https://user-images.githubusercontent.com/73966482/147893687-04ca7cad-e77b-4e2b-9090-e64f626e0049.png)
 
 <em><p align="center">
-  <b>Figure 01-C</b>. Example of a stretched face-centered cubic structure. Particles are prolate ellipsoids of revolution (<code>&kappa; > 1.0</code>).<br>
-  Number of particles: 500. Click [here](https://user-images.githubusercontent.com/73966482/125835625-a0891fb0-0fd1-4769-9911-f74196e32e64.png) to zoom the figure in.
+  <b>Figure 01-C</b>. Example of a stretched face-centered cubic structure. Particles are spherocylinders (<code>L/D > 0</code>).<br>
+  Number of particles: 500. Click [here](https://user-images.githubusercontent.com/73966482/125834422-f91daed1-18b6-4a83-81cb-868aa0a0e59a.png) to zoom the figure in.
 </p></em>
 
-![FCC](https://user-images.githubusercontent.com/73966482/125835625-a0891fb0-0fd1-4769-9911-f74196e32e64.png)
+![FCC](https://user-images.githubusercontent.com/73966482/147893565-400f136d-e9a1-4ad9-bb1f-1994f122655e.png)
 
 <p align="justify">
   <b>NOTE:</b><i> Please pay attention to choose an initial configuration that matches the valid number of particles for that structure.</i>
