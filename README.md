@@ -45,7 +45,7 @@ This <i>NVT</i>-Monte Carlo algorithm was originally designed to test an equatio
  (<a href="https://doi.org/10.1016/j.molliq.2021.115676">Lopes and Franco, <b>J. Mol. Liq.</b>, 330, 115676, 2021</a>). This thermodynamic model applies a
  perturbation theory, considering the reference fluid as hard spherocylinders interacting via short-range repulsive
  forces according to the Vega-Lago (VL) shortest distance algorithm (<a href="https://doi.org/10.1016/0097-8485(94)80023-5">Vega and Lago, <b>Comput. Chem.</b>, 18, 1, 55-59, 1994</a>)
- and the perturbed system ruled by attractive forces defined by a symmetrically spherical square-well potential. Our aim is to investigate
+ and the perturbed system ruled by attractive forces defined by a symmetrically spherical square-well potential or a continuous Kihara potential. Our aim is to investigate
  the valid limits of reduced number density ([1+L/D]&rho;*) and length-to-diameter aspect ratio (&kappa;) by calculating the first- and
  second-order perturbation coefficients, as well as the orientational ordering parameter of a uniaxial nematic phase.
 </p><br>
