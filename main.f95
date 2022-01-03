@@ -887,7 +887,7 @@ program main
 					! *******************************************************
 					! Dynamic threshold (rotation) - Decrease value
 					! *******************************************************
-					if ( ( ( angmax * ( 0.5d0 * max_elong ) ) < 1.d-4 ) &		! Arbitrary condition
+					if ( ( ( angmax * ( 0.5d0 * max_aspec ) ) < 1.d-4 ) &		! Arbitrary condition
 					&   .and. ( .not. stop_r ) ) then
 						msgaux  = r_acc_r
 						r_acc_r = 0.95d0 * r_acc_r				! Arbitrary modification
@@ -1209,7 +1209,7 @@ program main
 		open ( UNIT = 95, FILE = "Simulation_Log.dat" )
 			write ( 95, * ) "Monte Carlo Simulation Log"
 			write ( 95, * ) " "
-			write ( 95, * ) "Canonical Monte Carlo algorithm for ellipsoid-of-revolution molecules"
+			write ( 95, * ) "Canonical Monte Carlo algorithm for spherocylindrical molecules"
 			write ( 95, * ) " "
 			write ( 95, * ) "Nathan Barros de Souza"
 			write ( 95, * ) "University of Campinas"
