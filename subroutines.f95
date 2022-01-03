@@ -266,9 +266,11 @@ subroutine compute_particle_energy(i,ei,ri,vi)
 	! Allocation
 	! ***************************************************************************************
 	if ( ff_selec(1) ) then
+		deallocate( vi, vij )
 		allocate( vi (n_lambda) )
 		allocate( vij(n_lambda) )
 	else if ( ff_selec(2) ) then
+		deallocate( vi, vij )
 		allocate( vi (n_n) )
 		allocate( vij(n_n) )
 	end if
