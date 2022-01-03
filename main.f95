@@ -1144,11 +1144,11 @@ program main
 					write ( 150, "(A18,I4.4)" ) "No. of particles: ", n_particles
 					write ( 150, "(A21,F0.5)" ) "Reduced temperature: ", temp
 					write ( 150, "(A24,F0.5)" ) "Reduced number density: ", rho
-					write ( 150, "(A12,F0.5)" ) "Aspect ratio (L/D): ", aspect_ratio
+					write ( 150, "(A20,F0.5)" ) "Aspect ratio (L/D): ", aspect_ratio
 					if ( ff_selec(1) ) then
 						write ( 150, "(A18,F0.5)" ) "Attractive range: ", lambda(i)
 					else if ( ff_selec(2) ) then
-						write ( 150, "(A18,F0.5)" ) "Repulsive parameter: ", n_repulsive(i)
+						write ( 150, "(A21,F0.5)" ) "Repulsive parameter: ", n_repulsive(i)
 					end if
 					write ( 150, * ) " "
 					write ( 150, 600 )
