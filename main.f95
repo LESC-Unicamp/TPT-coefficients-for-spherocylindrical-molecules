@@ -1038,9 +1038,15 @@ program main
 	! ***************************************************************************************
  	print *, "Final total potential energy per particle: "
 	print *, " "
-	do i = 1, pot_param
-		write ( *, 400 ) lambda(i), vmc(i)/n_particles
-	end do
+	if ( ff_selec(1) ) then
+		do i = 1, pot_param
+			write ( *, 400 ) lambda(i), vmc(i)/n_particles
+		end do
+	else if ( ff_selec(2) ) then
+		do i = 1, pot_param
+			write ( *, 400 ) n_repulsive(i), vmc(i)/n_particles
+		end do
+	end if
 
 	call order_parameter()
 
@@ -1059,7 +1065,7 @@ program main
 	! ***************************************************************************************
 	! Deallocation of arrays
 	! ***************************************************************************************
-	deallocate ( v, vmc, vn, vm, dv )
+	deallocate ( v, vi, vmc, vn, vm, dv )
 	deallocate ( swrange )
 	deallocate ( qmc, rmc, emc )
 
