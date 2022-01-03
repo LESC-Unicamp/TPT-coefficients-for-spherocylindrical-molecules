@@ -204,14 +204,14 @@ The initial configuration (position and orientation of particles) is, by default
 
 <em><p align="center">
   <b>Figure 01-B</b>. Example of a narrowed body-centered cubic structure. Particles are oblate ellipsoids of revolution (<code>&kappa; < 1.0</code>).<br>
-  Number of particles: 686. Click [here](https://user-images.githubusercontent.com/73966482/125834422-f91daed1-18b6-4a83-81cb-868aa0a0e59a.png) to zoom the figure in.
+  Number of particles: 686. Click [here](https://user-images.githubusercontent.com/73966482/147893687-04ca7cad-e77b-4e2b-9090-e64f626e0049.png) to zoom the figure in.
 </p></em>
 
 ![BCC](https://user-images.githubusercontent.com/73966482/147893687-04ca7cad-e77b-4e2b-9090-e64f626e0049.png)
 
 <em><p align="center">
   <b>Figure 01-C</b>. Example of a stretched face-centered cubic structure. Particles are spherocylinders (<code>L/D > 0</code>).<br>
-  Number of particles: 500. Click [here](https://user-images.githubusercontent.com/73966482/125834422-f91daed1-18b6-4a83-81cb-868aa0a0e59a.png) to zoom the figure in.
+  Number of particles: 500. Click [here](https://user-images.githubusercontent.com/73966482/147893565-400f136d-e9a1-4ad9-bb1f-1994f122655e.png) to zoom the figure in.
 </p></em>
 
 ![FCC](https://user-images.githubusercontent.com/73966482/147893565-400f136d-e9a1-4ad9-bb1f-1994f122655e.png)
