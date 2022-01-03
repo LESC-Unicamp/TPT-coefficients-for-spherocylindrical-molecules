@@ -152,22 +152,14 @@ subroutine compute_total_energy()
 	! ***************************************************************************************
 	! Real variables
 	! ***************************************************************************************
-	real*8					:: sigmavl	! Vega-Lago shortest distance (function)
-	real*8					:: rvl		! Vega-Lago shortest distance (variable)
-	real*8					:: rijsq	! Vector distance between particles i and j (squared)
-	real*8					:: modrij	! Magnitude of the vector distance between particles i and j
-	real*8, dimension (3)			:: rij		! Vector distance between particles i and j
-	real*8, dimension (3)			:: ei, ej	! Orientation of particles i and j
-	real*8, dimension (:), allocatable	:: vij		! Pair potential energy
-
-	! ***************************************************************************************
-	! Allocation
-	! ***************************************************************************************
-	if ( ff_selec(1) ) then
-		allocate( vij(n_lambda) )
-	else if ( ff_selec(2) ) then
-		allocate( vij(n_n) )
-	end if
+	real*8				:: sigmavl	! Vega-Lago shortest distance (function)
+	real*8				:: rvl		! Vega-Lago shortest distance (variable)
+	real*8				:: rijsq	! Vector distance between particles i and j (squared)
+	real*8				:: modrij	! Magnitude of the vector distance between particles i and j
+	real*8, dimension (3)		:: rij		! Vector distance between particles i and j
+	real*8, dimension (3)		:: ei, ej	! Orientation of particles i and j
+	real*8, dimension (n_lambda)	:: vij_sw	! Pair potential energy (Square-Well potential)
+	real*8, dimension (n_n)		:: vij_kh	! Pair potential energy (Kihara potential)
 
 	! ***************************************************************************************
 	! Initialization of array
@@ -214,17 +206,21 @@ subroutine compute_total_energy()
 				! ***************************************************************
 				! Compute the Square-Well potential
 				! ***************************************************************
-				call compute_potential_sw(modrij,vij)
+				call compute_potential_sw(modrij,vij_sw)
+				! ***************************************************************
+				! Total potential energy (iterative calculation)
+				! ***************************************************************
+				v(:) = v(:) + vij_sw(:)
 			else if ( ff_selec(2) ) then
 				! ***************************************************************
 				! Compute the Kihara potential
 				! ***************************************************************
-				call compute_potential_kh(rvl,vij)
+				call compute_potential_kh(rvl,vij_kh)
+				! ***************************************************************
+				! Total potential energy (iterative calculation)
+				! ***************************************************************
+				v(:) = v(:) + vij_kh(:)
 			end if
-			! ***********************************************************************
-			! Total potential energy (iterative calculation)
-			! ***********************************************************************
-			v(:) = v(:) + vij(:)
 
 		end do
 
@@ -237,7 +233,7 @@ end subroutine compute_total_energy
 ! *********************************************************************************************** !
 !              This subroutine computes the potential energy of a random particle i               !
 ! *********************************************************************************************** !
-subroutine compute_particle_energy(i,ei,ri,vi)
+subroutine compute_particle_energy(i,ei,ri)
 
 	! Uses one module: global variables
 	use globalvar
@@ -252,28 +248,15 @@ subroutine compute_particle_energy(i,ei,ri,vi)
 	! ***************************************************************************************
 	! Real variables
 	! ***************************************************************************************
-	real*8					:: sigmavl	! Vega-Lago shortest distance (function)
-	real*8					:: rvl		! Vega-Lago shortest distance (variable)
-	real*8					:: rijsq	! Vector distance between particles i and j (squared)
-	real*8					:: modrij	! Magnitude of the vector distance between particles i and j
-	real*8, dimension (3)			:: ri		! Position of particle i
-	real*8, dimension (3)			:: rij		! Vector distance between particles i and j
-	real*8, dimension (3)			:: ei		! Orientation of particle i
-	real*8, dimension (:), allocatable	:: vi		! Potential energy of particle i (Iterative)
-	real*8, dimension (:), allocatable	:: vij		! Pair potential energy
-
-	! ***************************************************************************************
-	! Allocation
-	! ***************************************************************************************
-	if ( ff_selec(1) ) then
-		deallocate( vi, vij )
-		allocate( vi (n_lambda) )
-		allocate( vij(n_lambda) )
-	else if ( ff_selec(2) ) then
-		deallocate( vi, vij )
-		allocate( vi (n_n) )
-		allocate( vij(n_n) )
-	end if
+	real*8				:: sigmavl	! Vega-Lago shortest distance (function)
+	real*8				:: rvl		! Vega-Lago shortest distance (variable)
+	real*8				:: rijsq	! Vector distance between particles i and j (squared)
+	real*8				:: modrij	! Magnitude of the vector distance between particles i and j
+	real*8, dimension (3)		:: ri		! Position of particle i
+	real*8, dimension (3)		:: rij		! Vector distance between particles i and j
+	real*8, dimension (3)		:: ei		! Orientation of particle i
+	real*8, dimension (n_lambda)	:: vij_sw	! Pair potential energy (Square-Well potential)
+	real*8, dimension (n_n)		:: vij_kh	! Pair potential energy (Kihara potential)
 
 	! ***************************************************************************************
 	! Initialization of array
@@ -319,17 +302,21 @@ subroutine compute_particle_energy(i,ei,ri,vi)
 			! ***************************************************************
 			! Compute the Square-Well potential
 			! ***************************************************************
-			call compute_potential_sw(modrij,vij)
+			call compute_potential_sw(modrij,vij_sw)
+			! ***************************************************************
+			! Total potential energy (iterative calculation)
+			! ***************************************************************
+			vi(:) = vi(:) + vij_sw(:)
 		else if ( ff_selec(2) ) then
 			! ***************************************************************
 			! Compute the Kihara potential
 			! ***************************************************************
-			call compute_potential_kh(rvl,vij)
+			call compute_potential_kh(rvl,vij_kh)
+			! ***************************************************************
+			! Total potential energy (iterative calculation)
+			! ***************************************************************
+			vi(:) = vi(:) + vij_kh(:)
 		end if
-		! *******************************************************************************
-		! Total potential energy (iterative calculation)
-		! *******************************************************************************
-		vi(:) = vi(:) + vij(:)
 
 	end do
 
@@ -365,17 +352,21 @@ subroutine compute_particle_energy(i,ei,ri,vi)
 			! ***************************************************************
 			! Compute the Square-Well potential
 			! ***************************************************************
-			call compute_potential_sw(modrij,vij)
+			call compute_potential_sw(modrij,vij_sw)
+			! ***************************************************************
+			! Total potential energy (iterative calculation)
+			! ***************************************************************
+			vi(:) = vi(:) + vij_sw(:)
 		else if ( ff_selec(2) ) then
 			! ***************************************************************
 			! Compute the Kihara potential
 			! ***************************************************************
-			call compute_potential_kh(rvl,vij)
+			call compute_potential_kh(rvl,vij_kh)
+			! ***************************************************************
+			! Total potential energy (iterative calculation)
+			! ***************************************************************
+			vi(:) = vi(:) + vij_kh(:)
 		end if
-		! *******************************************************************************
-		! Total potential energy (iterative calculation)
-		! *******************************************************************************
-		vi(:) = vi(:) + vij(:)
 
 	end do
 
