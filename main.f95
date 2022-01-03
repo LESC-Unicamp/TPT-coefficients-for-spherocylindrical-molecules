@@ -1,12 +1,12 @@
 ! ############################################################################################### !
-!              Canonical Monte Carlo algorithm for ellipsoid-of-revolution molecules              !
-!       The Hard Gaussian Overlap (B. J. Berne & P. Pechukas, 1972) model is used to trial        !
-!            moves, and establishes the molecular configurations (position and orientation)       !
+!                 Canonical Monte Carlo algorithm for spherocylindrical molecules                 !
+!             The Vega-Lago Shortest Distance (T. Kihara, 1951) model is used to trial            !
+!          moves, and establishes the molecular configurations (position and orientation)         !
 !                                    of the Reference System.                                     !
-!      The spherical square-well potential is used to model the intermolecular interactions       !
-!                                    in the Perturbed System.                                     !
+!       The spherical square-well and Kihara potentials are used to model the intermolecular      !
+!                              interactions in the Perturbed System.                              !
 !                                                                                                 !
-! Version number: 1.0.1                                                                           !
+! Version number: 1.0.0                                                                           !
 ! ############################################################################################### !
 !                                University of Campinas (Unicamp)                                 !
 !                                 School of Chemical Engineering                                  !
@@ -15,11 +15,11 @@
 !                             Original Developer: Joyce Tavares Lopes                             !
 !                             Supervisor: Luís Fernando Mercier Franco                            !
 !                             --------------------------------------                              !
-!                                            June 20th                                            !
+!                                        January 2nd, 2022                                        !
 ! ############################################################################################### !
-! Main References:                    B. J. Berne, P. Pechukas                                    !
-!                                  J. Chem. Phys. 56, 4213 (1972)                                 !
-!                                      DOI: 10.1063/1.1677837                                     !
+! Main References:                           T. Kihara                                            !
+!                                    J. Phys. Soc. Japan (1951)                                   !
+!                                     DOI: 10.1143/jpsj.6.289                                     !
 !                             --------------------------------------                              !
 !                                   M. P. Allen, D. J. Tildesley                                  !
 !                           Oxford University Press, 2nd Edition (2017)                           !
@@ -59,19 +59,21 @@ program main
 	! Integer variables
 	! ***************************************************************************************
 	integer*8		:: i, j, k	! Loop counters
+	integer*8		:: pot_param	! Auxiliar
 
 	! ***************************************************************************************
 	! Real variables/functions
 	! ***************************************************************************************
-	real*8			:: sigmahgo	! HGO Contact Distance (function)
-	real*8			:: rhgo	        ! HGO Contact Distance (variable)
-	real*8			:: modrij	! Magnitude of the vector distance between particles i and j
+	real*8			:: sigmavl	! Vega-Lago shortest distance (function)
+	real*8			:: rvl	        ! Vega-Lago shortest distance (variable)
+	real*8			:: rijsq	! Vector distance between particles i and j (squared)
 	real*8			:: max_boxl	! Largest box length
-	real*8			:: max_elong	! Largest axis diameter of an ellipsoidal geometry
+	real*8			:: max_aspec	! Largest dimension of a spherocylindrical geometry
 	real*8			:: msgaux	! Auxiliar
+	real*8			:: cutoff	! Cutoff diameter
+	real*8			:: cutoffsq	! Cutoff diameter (squared)
 	real*8, dimension (3)	:: ei, ej	! Orientation of particles i and j
 	real*8, dimension (3)	:: rij		! Vector distance between particles i and j
-	real*8, dimension (3)	:: urij		! Normalized vector distance between particles i and j
 	real*8, dimension (3)	:: em, en	! Orientation (before/after a trial move)
 	real*8, dimension (3)	:: rm, rn	! Position (before/after a trial move)
 	real*8, dimension (0:3)	:: qm, qn	! Quaternion (before/after a trial move)
@@ -89,12 +91,12 @@ program main
 	! ***************************************************************************************
 	! Character variables
 	! ***************************************************************************************
-	character		:: l_format*32	! Number of attractive range parameters (format)
+	character		:: l_format*32	! Number of attractive/repulsive range parameters (format)
 
 	! ***************************************************************************************
 	! Logical variables
 	! ***************************************************************************************
-	logical			:: overlap	! Detects overlap between two particles (HGO)   : TRUE = overlap detected;  FALSE = overlap not detected
+	logical			:: overlap	! Detects overlap between two particles (VL)   : TRUE = overlap detected;  FALSE = overlap not detected
 	logical			:: flag		! Generic true/false flag
 
 	! ***************************************************************************************
@@ -112,19 +114,34 @@ program main
 	! ***************************************************************************************
 	call common_var()
 
-	allocate ( a1(n_lambda) )
-	allocate ( a2(n_lambda) )
-	allocate ( apert(n_lambda) )
-	allocate ( dpa1(n_lambda) )
-	allocate ( dpa2(n_lambda) )
-	allocate ( dpapert(n_lambda) )
-	allocate ( v(n_lambda) )
-	allocate ( vmc(n_lambda) )
-	allocate ( vn(n_lambda) )
-	allocate ( vm(n_lambda) )
-	allocate ( swrange(n_lambda) )
-	allocate ( dv(n_lambda) )
-	allocate ( lfexist(n_lambda) )
+	if ( ff_selec(1) ) then
+		allocate ( a1(n_lambda) )
+		allocate ( a2(n_lambda) )
+		allocate ( apert(n_lambda) )
+		allocate ( dpa1(n_lambda) )
+		allocate ( dpa2(n_lambda) )
+		allocate ( dpapert(n_lambda) )
+		allocate ( v(n_lambda) )
+		allocate ( vmc(n_lambda) )
+		allocate ( vn(n_lambda) )
+		allocate ( vm(n_lambda) )
+		allocate ( swrange(n_lambda) )
+		allocate ( dv(n_lambda) )
+		allocate ( lfexist(n_lambda) )
+	else if ( ff_selec(2) ) then
+		allocate ( a1(n_n) )
+		allocate ( a2(n_n) )
+		allocate ( apert(n_n) )
+		allocate ( dpa1(n_n) )
+		allocate ( dpa2(n_n) )
+		allocate ( dpapert(n_n) )
+		allocate ( v(n_n) )
+		allocate ( vmc(n_n) )
+		allocate ( vn(n_n) )
+		allocate ( vm(n_n) )
+		allocate ( dv(n_lambda) )
+		allocate ( lfexist(n_lambda) )
+	end if
 	allocate ( qmc (0:3,n_particles) )
 	allocate ( rmc (3,n_particles) )
 	allocate ( emc (3,n_particles) )
@@ -171,9 +188,13 @@ program main
 	print *, "Number of particles:            ", n_particles
 	print *, "Reduced number density (κρ*):   ", rho
 	print *, "Reduced temperature:            ", temp
-	print *, "Ellipsoid elongation:           ", elongation
+	print *, "Aspect ratio (L/D):             ", aspect_ratio
 	print *, "Quaternion angle:               ", quaternion_angle
-	print *, "No. of attractive parameters:   ", n_lambda
+	if ( ff_selec(1) ) then
+		print *, "No. of attractive parameters:   ", n_lambda
+	else if ( ff_selec(2) ) then
+		print *, "No. of repulsive parameters:    ", n_n
+	end if
 	print *, "Total number of cycles:         ", max_cycles
 	print *, "Equilibration cycles:           ", n_equil
 	print *, "Production cycles:              ", max_cycles-n_equil
@@ -188,9 +209,15 @@ program main
 	print *, " "
 	print *, "Write out only production-related potentials? ", pot_inq
 	print *, " "
-	do i = 1, n_lambda
-		write ( *, "(A28,I2.2,A2,F5.2)" ) "Attractive range parameter #", i, ": ", lambda(i)
-	end do
+	if ( ff_selec(1) ) then
+		do i = 1, n_lambda
+			write ( *, "(A28,I2.2,A2,F5.2)" ) "Attractive range parameter #", i, ": ", lambda(i)
+		end do
+	else if ( ff_selec(2) ) then
+		do i = 1, n_n
+			write ( *, "(A28,I2.2,A2,F5.2)" ) "Repulsive index parameter #", i, ":  ", n_repulsive(i)
+		end do
+	end if
 	print *, " "
 	! Wait for user
 	print *, "Press and enter any KEY to continue..."
@@ -238,7 +265,7 @@ program main
 		write ( 20, * ) " "
 		do i = 1, n_particles
 			write ( 20, * ) atom, r(1,i), r(2,i), r(3,i), q(0,i), q(1,i), q(2,i), q(3,i), &
-			&		0.5d0, 0.5d0, ( elongation * 0.5d0 )
+			&		0.5d0, aspect_ratio
 		end do
 	end if
 
@@ -254,15 +281,28 @@ program main
 	open ( UNIT = 50, FILE = "Order_Parameter/"//trim(descriptor_date)//"/order_ε"//trim(descriptor_file1)//"_ρ" &
 	&			  //trim(descriptor_file2)//".dat" )
 
-	! Attractive range parameter subfolders
-	do counter_lambda = 1, n_lambda
-		! File descriptor: attractive range parameter
-		write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
-		! Potential files
-		open ( UNIT = ( 60 + counter_lambda ), FILE = "Potential/"//trim(descriptor_date)//"/Lambda_" &
-		&				       //trim(descriptor_lamb)//"/thermo_ε"//trim(descriptor_file1)//"_ρ" &
-		&				       //trim(descriptor_file2)//".dat" )
-	end do
+	! Potential parameters
+	if ( ff_selec(1) ) then
+		pot_param = n_lambda
+		do counter_lambda = 1, n_lambda
+			! File descriptor: attractive range parameter
+			write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
+			! Potential files
+			open ( UNIT = ( 60 + counter_lambda ), FILE = "Potential/SW/"//trim(descriptor_date)//"/Lambda_" &
+			&				       //trim(descriptor_lamb)//"/thermo_ε"//trim(descriptor_file1)//"_ρ" &
+			&				       //trim(descriptor_file2)//".dat" )
+		end do
+	else if ( ff_selec(2) ) then
+		pot_param = n_n
+		do counter_n = 1, n_n
+			! File descriptor: repulsive parameter
+			write ( descriptor_n, format_n ) n_repulsive(counter_n)
+			! Potential files
+			open ( UNIT = ( 60 + counter_n ), FILE = "Potential/KH/"//trim(descriptor_date)//"/n_" &
+			&				  //trim(descriptor_n)//"/thermo_ε"//trim(descriptor_file1)//"_ρ" &
+			&				  //trim(descriptor_file2)//".dat" )
+		end do
+	end if
 
 	! Status
 	print *, "Done!"
@@ -278,49 +318,28 @@ program main
 	end do
 
 	! ***************************************************************************************
-	! Largest axis diameter
+	! Largest spherocylindrical dimension
 	! ***************************************************************************************
-	if ( elongation <= 1.d0 ) then
-		max_elong = 1.d0
-	else if ( elongation > 1.d0 ) then
-		max_elong = elongation
-	end if
+	max_aspec = ( 1.d0 + aspect_ratio )
 
 	! ***************************************************************************************
-	! Ellipsoid shape anisotropy "χ"
+	! Hard-core volumetric relation (spherocylinders and spheres)
 	! ***************************************************************************************
-	!  χ =  0 : spheres
-	!  χ → -1 : thin disks
-	!  χ →  1 : long rods
+	!  The spherical and spherocylindrical volumes are related as follows:
 	!
-	!  Elongation (κ) is provided by the user and represents the fraction 'sigma_e'/'sigma_s'
-	!  Although 'sigma_e' and 'sigma_s' are contact distances of the HGO model, they can also
-	!  represent the major and minor axis diameters of ellipsoids of revolution, depending on
-	!  their values.
+	!                          V_sphere = V_sc
+	!      (π/6)*(sigma_sphere**3) = (π/6)*(D**3)+(π/4)*(D**2)*(L)
+	!          sigma_sphere = {(D**3)+[(3/2)*(D**2)*(L)]}**(1/3)
 	!
-	!  If 'sigma_e' > 'sigma_s', then 'sigma_e' is equivalent to the major axis diameter and
-	!  'sigma_s' is equivalent to the minor axis diameter, and vice-versa.
+	!  The formula above is not in reduced units. The fundamental unit of length is 'D',
+	!  thus all length quantities are divided by 'D'. Then:
+	!
+	!           sigma_sphere = {(1**3)+[(3/2)*(1**2)*(L/D)]}**(1/3)
+	!                 sigma_sphere = {1+[(3/2)*(L/D)]}**(1/3)
+	!                   sigma_sphere = [1+1.5*(L/D)]**(1/3)
+	!
 	! ***************************************************************************************
-	chi = ( ( elongation * elongation ) - 1.d0 ) / ( ( elongation * elongation ) + 1.d0 )
-
-	! ***************************************************************************************
-	! Hard core volumetric relation (ellipsoids of revolution and spheres)
-	! ***************************************************************************************
-	!  The spherical and ellipsoidal volumes are related as follows:
-	!
-	!                      V_sphere = V_ellipsoid
-	!      (π/6)*(sigma_sphere**3) = (π/6)*(sigma_e)*(sigma_s**2)
-	!          sigma_sphere = [(sigma_e)*(sigma_s**2)]**(1/3)
-	!
-	!  The formula above is not in reduced units. The fundamental unit of length is 'sigma_s',
-	!  thus all length quantities are divided by 'sigma_s'. Then:
-	!
-	!           sigma_sphere = [(sigma_e/sigma_s)*(1**2)]**(1/3)
-	!                       sigma_sphere = κ**(1/3)
-	!
-	!  See Lopes and Franco (2019) for more information.
-	! ***************************************************************************************
-	sigsphere  = ( elongation ) ** ( 1.d0 / 3.d0 )
+	sigsphere  = ( 1.d0 + ( 1.5d0 * aspect_ratio ) ) ** ( 1.d0 / 3.d0 )
 
 	! ***************************************************************************************
 	! Effective range of attraction
@@ -346,6 +365,17 @@ program main
 	do i = 1, n_particles
 		call active_transformation(fixed_axis,q(:,i),e(:,i))
 	end do
+
+	! ***************************************************************************************
+	! Cutoff diameter
+	! ***************************************************************************************
+	!  A cutoff distance equivalent to the diameter of a spherical geometry circumscribing
+	!  an spherocylinder.
+	! ***************************************************************************************
+	!  REMINDER: the fundamental unit of length is 'D'.
+	! ***************************************************************************************
+	cutoff   = ( 1.d0 + aspect_ratio )	! or 'L+D' for dimensional variables
+	cutoffsq = cutoff * cutoff
 
 	! ***************************************************************************************
 	! Overlap check (initial configuration)
@@ -374,34 +404,32 @@ program main
 			! ***********************************************************************
 			rij(:) = rij(:) - ( box_length(:) ) * anint( rij(:) / box_length(:) )
 			! ***********************************************************************
-			! Magnitude of the vector distance
+			! Magnitude of the vector distance (squared)
 			! ***********************************************************************
-			modrij  = dsqrt( ( rij(1) * rij(1) ) + ( rij(2) * rij(2) ) + ( rij(3) * rij(3) ) )
+			rijsq  = ( rij(1) * rij(1) ) + ( rij(2) * rij(2) ) + ( rij(3) * rij(3) )
 			! ***********************************************************************
-			! Vector normalization
+			! Cutoff distance
 			! ***********************************************************************
-			urij(:) = rij(:) / modrij
-			! ***********************************************************************
-			! Hard Gaussian Overlap (HGO) - Contact distance
-			! See 'functions' file for more information
-			! ***********************************************************************
-			rhgo = sigmahgo(ei,ej,urij)
-			! ***********************************************************************
-			! Overlap criterion
-			! ***********************************************************************
-			if ( modrij <= rhgo ) then
-				write ( *, 100 ) i, j, rho
-				! Stop program if overlap is detected
-				call exit()
+			if ( rijsq <= cutoffsq ) then
+				! ***********************************************************************
+				! Vega-Lago Overlap Criterion - Shortest distance
+				!  See 'functions' file for more information
+				! ***********************************************************************
+				rvl = sigmavl(ei,ej,rij,rijsq)
+				if ( rvl <= 1.d0 ) then
+					write ( *, 100 ) i, j, rho
+					! Stop program if overlap is detected
+					call exit()
+				end if
 			end if
 
 		end do
 
 	end do
 
-	! Might be necessary to change if the number of decimal places is higher than 2 or the number of characters is higher than 4.
+	! Might be necessary to change if the number of decimal places is higher than 5.
  100	format ( "Overlap detected in initial configuration between particles ", I4.4, " and ", I4.4, &
-	&	 " for a reduced number density of ", F4.2, "! Exiting..." )
+	&	 " for a reduced number density of ", F0.5, "! Exiting..." )
 
 	! Status
 	print *, "No overlaps detected. Resuming..."
@@ -487,15 +515,15 @@ program main
 		! Save all potential data (equilibration and production)
 		if ( .not. potential_check ) then
 			if ( mod( cycles, n_save ) == 0 ) then
-			do counter_lambda = 1, n_lambda
-				write ( 60 + counter_lambda, *) cycles, vmc(counter_lambda)
+			do i = 1, pot_param
+				write ( 60 + i, *) cycles, vmc(i)
 			end do
 		end if
 		!Save potential data (production-related only)
 		else if ( potential_check ) then
 			if ( cycles > n_equil .and. mod( cycles, n_save ) == 0 ) then
-				do counter_lambda = 1, n_lambda
-					write ( 60 + counter_lambda, * ) cycles, vmc(counter_lambda)
+				do i = 1, pot_param
+					write ( 60 + i, * ) cycles, vmc(i)
 				end do
 			end if
 		end if
@@ -509,7 +537,7 @@ program main
 		!  required during displacement adjustment.
 		! *******************************************************************************
 
-		if ( elongation /= 1.d0 ) then
+		if ( aspect_ratio /= 0.d0 ) then
 			! ***********************************************************************
 			! Pseudorandom number generator (uniform distribution)
 			! (see 'subroutines' code for more details)
@@ -533,7 +561,7 @@ program main
 		! *******************************************************************************
 		! Spherical case (only translational DOFs)
 		! *******************************************************************************
-		!  Ignores random movement selection if elongation is 1.0.
+		!  Ignores random movement selection if the length-to-diameter aspect ratio is 0.
 		! *******************************************************************************
 		else
 			mov_trans = .true.		! Enable translation (permanently)
@@ -567,7 +595,7 @@ program main
 		! Computation of potential energy of particle i (Microstate m)
 		! See 'subroutines' code for more details.
 		! *******************************************************************************
-		call compute_particle_energy(i,rm,vm)
+		call compute_particle_energy(i,em,rm,vm)
 
 		! *******************************************************************************
 		! Random Displacement (trial move of particle i)
@@ -672,7 +700,7 @@ program main
 		! *******************************************************************************
 
 		! *******************************************************************************
-		! Overlap Verification (HGO)
+		! Overlap Verification (VL)
 		! See 'subroutines' code for more details.
 		! *******************************************************************************
 		!  Checks if a random displacement (translation or rotation) of particle i causes 
@@ -698,7 +726,7 @@ program main
 			! ***********************************************************************
 			! Computation of potential energy of particle i (Microstate n)
 			! ***********************************************************************
-			call compute_particle_energy(i,rn,vn)
+			call compute_particle_energy(i,en,rn,vn)
 
 			! ***********************************************************************
 			! Computation of energy difference of microstates n and m
@@ -814,11 +842,11 @@ program main
 					!  OBS.: These parameters were not resetted in the 
 					!  Monte Carlo simulations performed in our paper.
 					! *******************************************************
-					if ( resetmc ) then
-						call reset_system()
-						! Advance loop
-						cycle
-					end if
+					!if ( resetmc ) then
+					!	call reset_system()
+					!	! Advance loop
+					!	cycle
+					!end if
 
 				end if
 
@@ -917,11 +945,11 @@ program main
 					!  OBS.: These parameters were not resetted in the 
 					!  Monte Carlo simulations performed in our paper.
 					! *******************************************************
-					if ( resetmc ) then
-						call reset_system()
-						! Advance loop
-						cycle
-					end if
+					!if ( resetmc ) then
+					!	call reset_system()
+					!	! Advance loop
+					!	cycle
+					!end if
 
 				end if
 
@@ -955,7 +983,7 @@ program main
 					! *******************************************************
 					write ( 20, * ) atom, rmc(1,i), rmc(2,i), rmc(3,i), &
 					&		qmc(0,i), qmc(1,i), qmc(2,i), qmc(3,i), &
-					&		0.5d0, 0.5d0, ( elongation * 0.5d0 )
+					&		0.5d0, aspect_ratio
 				end do
 			end if
 		end if
@@ -967,7 +995,7 @@ program main
 			write ( *, "(A10,F5.1,A1)" ) "Progress: ", ( 100.d0 ) * ( dble( cycles ) / dble( max_cycles ) ), "%"
 			write ( *, "(A18,I10)" ) "Remaining cycles: ", ( max_cycles - cycles )
 			if ( reset_c > 0 ) then
-				write ( *, "(A19,I3)" ) "Simulation resets: ", reset_c
+				write ( *, "(A19,I3)" ) "Threshold resets: ", reset_c
 			end if
 			write ( *, * ) " "
 		end if
@@ -989,19 +1017,19 @@ program main
 	close ( 30 )
 	close ( 40 )
 	close ( 50 )
-	do counter_lambda = 1, n_lambda
-		close ( 60 + counter_lambda )
+	do i = 1, pot_param
+		close ( 60 + i )
 	end do
 
- 400	format ( "Attractive range of ", F4.2, ":", F8.4 )
+ 400	format ( "Attractive/Repulsive parameter of ", F0.5, ":", F0.5 )
  
  	! ***************************************************************************************
 	! Summary report
 	! ***************************************************************************************
  	print *, "Final total potential energy per particle: "
 	print *, " "
-	do counter_lambda = 1, n_lambda
-		write ( *, 400 ) lambda(counter_lambda), vmc(counter_lambda)/n_particles
+	do i = 1, pot_param
+		write ( *, 400 ) lambda(i), vmc(i)/n_particles
 	end do
 
 	call order_parameter()
@@ -1028,9 +1056,9 @@ program main
 	! ***************************************************************************************
 	! Messages
 	! ***************************************************************************************
- 450	format ( "Now calculating TPT coefficients for an attractive range of ", F4.2, "..." )
+ 450	format ( "Now calculating TPT coefficients for an attractive/repulsive parameter of ", F0.5, "..." )
 
- 500	format ( "Calculation of TPT coefficients for an attractive range of ", F4.2, " finished successfully!" )
+ 500	format ( "Calculation of TPT coefficients for an attractive/repulsive parameter of ", F0.5, " finished successfully!" )
  
  550	format ( "The results are reported in a log file in the 'Perturbed_Coefficient' folder." )
 
@@ -1054,16 +1082,20 @@ program main
 		! *******************************************************************************
 		! Calculation of TPT coefficients and Perturbed Helmholtz free energy
 		! *******************************************************************************
-		block_av_loop: do counter_lambda = 1, n_lambda
-			write ( *, 450 ) lambda(counter_lambda)
+		block_av_loop: do i = 1, pot_param
+			if ( ff_selec(1) ) then
+				write ( *, 450 ) lambda(i)
+				write ( descriptor_lamb, format_lamb ) lambda(i)
+			else if ( ff_selec(2) ) then
+				write ( *, 450 ) n_repulsive(i)
+				write ( descriptor_n, format_n ) n_repulsive(i)
+			end if
 			write ( *, * ) " "
-			write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
 			! ***********************************************************************
 			! Block-averaging method
 			! See 'subroutines' code for more details.
 			! ***********************************************************************
-			call block_averaging(flag,a1(counter_lambda),a2(counter_lambda),apert(counter_lambda),&
-			&		     dpa1(counter_lambda),dpa2(counter_lambda),dpapert(counter_lambda))
+			call block_averaging(flag,a1(i),a2(i),apert(i),dpa1(i),dpa2(i),dpapert(i))
 			! ***********************************************************************
 			! Stop condition
 			! ***********************************************************************
@@ -1071,8 +1103,12 @@ program main
 				exit block_av_loop	! Terminate calculation if min. block greater than max. blocks
 			end if
 			! Message
-			write ( *, 500 ) lambda(counter_lambda)
-			write ( *, 550 ) 
+			if ( ff_selec(1) ) then
+				write ( *, 500 ) lambda(i)
+			else if ( ff_selec(2) ) then
+				write ( *, 500 ) n_repulsive(i)
+			end if
+			write ( *, 550 )
 			write ( *, * ) " "
 		end do block_av_loop
 
@@ -1081,23 +1117,32 @@ program main
 		! *******************************************************************************
 		if ( .not. flag ) then	! Subroutine returns no errors
 
-			do counter_lambda = 1, n_lambda
+			do i = 1, pot_param
 
-				write ( descriptor_lamb, format_lamb ) lambda(counter_lambda)
-
-				open ( UNIT = 150, FILE = "Perturbed_Coefficient/"//trim(descriptor_date)//"/Lambda_" &
-				&    //trim(descriptor_lamb)//"/TPT_coefficients_ε"//trim(descriptor_file1)//"_ρ" &
-				&    //trim(descriptor_file2)//".csv")
+				if ( ff_selec(1) ) then
+					write ( descriptor_lamb, format_lamb ) lambda(i)
+					open ( UNIT = 150, FILE = "Perturbed_Coefficient/SW/"//trim(descriptor_date)//"/Lambda_" &
+					&    //trim(descriptor_lamb)//"/TPT_coefficients_ε"//trim(descriptor_file1)//"_ρ" &
+					&    //trim(descriptor_file2)//".csv")
+				else if ( ff_selec(2) ) then
+					write ( descriptor_n, format_n ) n_repulsive(i)
+					open ( UNIT = 150, FILE = "Perturbed_Coefficient/KH/"//trim(descriptor_date)//"/n_" &
+					&    //trim(descriptor_n)//"/TPT_coefficients_ε"//trim(descriptor_file1)//"_ρ" &
+					&    //trim(descriptor_file2)//".csv")
+				end if
 
 					write ( 150, "(A18,I4.4)" ) "No. of particles: ", n_particles
-					write ( 150, "(A21,F4.2)" ) "Reduced temperature: ", temp
-					write ( 150, "(A24,F4.2)" ) "Reduced number density (κρ*): ", rho
-					write ( 150, "(A12,F5.2)" ) "Elongation: ", elongation
-					write ( 150, "(A18,F4.2)" ) "Attractive range: ", lambda(counter_lambda)
+					write ( 150, "(A21,F0.5)" ) "Reduced temperature: ", temp
+					write ( 150, "(A24,F0.5)" ) "Reduced number density: ", rho
+					write ( 150, "(A12,F0.5)" ) "Aspect ratio (L/D): ", aspect_ratio
+					if ( ff_selec(1) ) then
+						write ( 150, "(A18,F0.5)" ) "Attractive range: ", lambda(i)
+					else if ( ff_selec(2) ) then
+						write ( 150, "(A18,F0.5)" ) "Repulsive parameter: ", n_repulsive(i)
+					end if
 					write ( 150, * ) " "
 					write ( 150, 600 )
-					write ( 150, 650 ) a1(counter_lambda), dpa1(counter_lambda), a2(counter_lambda), &
-					&		   dpa2(counter_lambda), apert(counter_lambda), dpapert(counter_lambda)
+					write ( 150, 650 ) a1(i), dpa1(i), a2(i), dpa2(i), apert(i), dpapert(i)
 
 				close ( 150 )
 
@@ -1123,21 +1168,25 @@ program main
 	! Attractive range format
 	! ***************************************************************************************
 	format_file0 = "(I3)"
-	write ( descriptor_file0, format_file0 ) n_lambda
-	l_format = "("//trim(descriptor_file0)//"F6.2)"
+	write ( descriptor_file0, format_file0 ) pot_param
+	l_format = "("//trim(descriptor_file0)//"F0.5)"
 
 	! ***************************************************************************************
 	! Simulation log descriptors
 	! ***************************************************************************************
 	write ( char_label(1),  "(I5)"     ) n_particles
-	write ( char_label(2),  "(F4.2)"   ) elongation
-	write ( char_label(3),  "(F4.2)"   ) rho
-	write ( char_label(4),  "(F5.2)"   ) temp
+	write ( char_label(2),  "(F0.5)"   ) aspect_ratio
+	write ( char_label(3),  "(F0.5)"   ) rho
+	write ( char_label(4),  "(F0.5)"   ) temp
 	if ( coef_check ) then
 		write ( char_label(5),  "(I4)" ) min_blocks
 		write ( char_label(6),  "(I4)" ) max_blocks
 	end if
-	write ( char_label(7),  l_format   ) lambda
+	if ( ff_selec(1) ) then
+		write ( char_label(7),  l_format   ) lambda
+	else if ( ff_selec(2) ) then
+		write ( char_label(7),  l_format   ) n_repulsive
+	end if
 	write ( char_label(8),  "(I12.12)" ) max_cycles
 	write ( char_label(9),  "(I12.12)" ) n_equil
 	write ( char_label(10), "(I12.12)" ) ( max_cycles - n_equil )
@@ -1151,7 +1200,7 @@ program main
 	! ***************************************************************************************
 	inquire ( FILE = "Simulation_Log.dat", EXIST = file_exist )
 
- 700	format(i4,"/",i2.2,"/",i2.2," ",i2.2,":",i2.2,":",i2.2)
+ 700	format(I4,"/",I2.2,"/",I2.2," ",I2.2,":",I2.2,":",I2.2)
 
 	! ***************************************************************************************
 	! Simulation log
@@ -1174,21 +1223,25 @@ program main
 			write ( 95, 700 ) date_time(1), date_time(2), date_time(3), &
 			&		  date_time(5), date_time(6), date_time(7)
 			write ( 95, * ) " "
-			write ( 95, "(A27,5X,A20)" ) "Number of Particles:          ", adjustl ( char_label(1)  )
-			write ( 95, "(A27,5X,A20)" ) "Ellipsoid Elongation:         ", adjustl ( char_label(2)  )
-			write ( 95, "(A27,5X,A20)" ) "Reduced Number Density (κρ*): ", adjustl ( char_label(3)  )
-			write ( 95, "(A27,5X,A20)" ) "Reduced Temperature:          ", adjustl ( char_label(4)  )
+			write ( 95, "(A27,5X,A20)" ) "Number of Particles:       ", adjustl ( char_label(1)  )
+			write ( 95, "(A27,5X,A20)" ) "Aspect Ratio (L/D):        ", adjustl ( char_label(2)  )
+			write ( 95, "(A27,5X,A20)" ) "Reduced Number Density     ", adjustl ( char_label(3)  )
+			write ( 95, "(A27,5X,A20)" ) "Reduced Temperature:       ", adjustl ( char_label(4)  )
 			if ( coef_check ) then
 				write ( 95, "(A27,5X,A20)" ) "Minimum Number of Blocks :    ", adjustl ( char_label(5)  )
 				write ( 95, "(A27,5X,A20)" ) "Maximum Number of Blocks :    ", adjustl ( char_label(6)  )
 			end if
-			write ( 95, "(A27,5X,A30)" ) "Attractive Range:             ", adjustl ( char_label(7)  )
-			write ( 95, "(A27,5X,A20)" ) "Total Number of Cycles:       ", adjustl ( char_label(8)  )
-			write ( 95, "(A27,5X,A20)" ) "Equilibration Cycles:         ", adjustl ( char_label(9)  )
-			write ( 95, "(A27,5X,A20)" ) "Production Cycles:            ", adjustl ( char_label(10) )
-			write ( 95, "(A27,5X,A20)" ) "Data Saving Frequency :       ", adjustl ( char_label(11) )
-			write ( 95, "(A27,5X,A20)" ) "Adjustment Frequency:         ", adjustl ( char_label(12) )
-			write ( 95, "(A27,5X,A20)" ) "Simulation Resets:            ", adjustl ( char_label(13) )
+			if ( ff_selec(1) ) then
+				write ( 95, "(A27,5X,A30)" ) "Attractive Range:          ", adjustl ( char_label(7)  )
+			else if ( ff_selec(2) ) then
+				write ( 95, "(A27,5X,A30)" ) "Repulsive Index:           ", adjustl ( char_label(7)  )
+			end if
+			write ( 95, "(A27,5X,A20)" ) "Total Number of Cycles:    ", adjustl ( char_label(8)  )
+			write ( 95, "(A27,5X,A20)" ) "Equilibration Cycles:      ", adjustl ( char_label(9)  )
+			write ( 95, "(A27,5X,A20)" ) "Production Cycles:         ", adjustl ( char_label(10) )
+			write ( 95, "(A27,5X,A20)" ) "Data Saving Frequency :    ", adjustl ( char_label(11) )
+			write ( 95, "(A27,5X,A20)" ) "Adjustment Frequency:      ", adjustl ( char_label(12) )
+			write ( 95, "(A27,5X,A20)" ) "Threshold Resets:          ", adjustl ( char_label(13) )
 			write ( 95, * ) " "
 			if ( traj_check ) then
 				write ( 95, "(A33)" ) "Trajectory of particles computed."
@@ -1204,6 +1257,11 @@ program main
 				write ( 95, "(A53)" ) "Potential energy computed only for production cycles."
 			else if ( .not. potential_check ) then
 				write ( 95, "(A46)" ) "Potential energy computed only for all cycles."
+			end if
+			if ( ff_selec(1) ) then
+				write ( 95, "(A31)" ) "Square-Well potential selected."
+			else if ( ff_selec(2) ) then
+				write ( 95, "(A26)" ) "Kihara potential selected."
 			end if
 			write ( 95, * )  " "
 			write ( 95, "(A27,5X,A20,A4)")  "Simulation length:            ", &
@@ -1216,25 +1274,25 @@ program main
 		open ( UNIT = 95, FILE = "Simulation_Log.dat", POSITION = "append" )
 			write ( 95, * ) "________________________________________________________"
 			write ( 95, * ) " "
-			write ( 95, "(A14)" ) "Execution Date"
-			write ( 95, 700 ) date_time(1), date_time(2), date_time(3), &
-			&		  date_time(5), date_time(6), date_time(7)
-			write ( 95, * ) " "
-			write ( 95, "(A27,5X,A20)" ) "Number of Particles:          ", adjustl ( char_label(1)  )
-			write ( 95, "(A27,5X,A20)" ) "Ellipsoid Elongation:         ", adjustl ( char_label(2)  )
-			write ( 95, "(A27,5X,A20)" ) "Reduced Number Density (κρ*): ", adjustl ( char_label(3)  )
-			write ( 95, "(A27,5X,A20)" ) "Reduced Temperature:          ", adjustl ( char_label(4)  )
+			write ( 95, "(A27,5X,A20)" ) "Number of Particles:       ", adjustl ( char_label(1)  )
+			write ( 95, "(A27,5X,A20)" ) "Aspect Ratio (L/D):        ", adjustl ( char_label(2)  )
+			write ( 95, "(A27,5X,A20)" ) "Reduced Number Density     ", adjustl ( char_label(3)  )
+			write ( 95, "(A27,5X,A20)" ) "Reduced Temperature:       ", adjustl ( char_label(4)  )
 			if ( coef_check ) then
 				write ( 95, "(A27,5X,A20)" ) "Minimum Number of Blocks :    ", adjustl ( char_label(5)  )
 				write ( 95, "(A27,5X,A20)" ) "Maximum Number of Blocks :    ", adjustl ( char_label(6)  )
 			end if
-			write ( 95, "(A27,5X,A30)" ) "Attractive Range:             ", adjustl ( char_label(7)  )
-			write ( 95, "(A27,5X,A20)" ) "Total Number of Cycles:       ", adjustl ( char_label(8)  )
-			write ( 95, "(A27,5X,A20)" ) "Equilibration Cycles:         ", adjustl ( char_label(9)  )
-			write ( 95, "(A27,5X,A20)" ) "Production Cycles:            ", adjustl ( char_label(10) )
-			write ( 95, "(A27,5X,A20)" ) "Data Saving Frequency :       ", adjustl ( char_label(11) )
-			write ( 95, "(A27,5X,A20)" ) "Adjustment Frequency:         ", adjustl ( char_label(12) )
-			write ( 95, "(A27,5X,A20)" ) "Simulation Resets:            ", adjustl ( char_label(13) )
+			if ( ff_selec(1) ) then
+				write ( 95, "(A27,5X,A30)" ) "Attractive Range:          ", adjustl ( char_label(7)  )
+			else if ( ff_selec(2) ) then
+				write ( 95, "(A27,5X,A30)" ) "Repulsive Index:           ", adjustl ( char_label(7)  )
+			end if
+			write ( 95, "(A27,5X,A20)" ) "Total Number of Cycles:    ", adjustl ( char_label(8)  )
+			write ( 95, "(A27,5X,A20)" ) "Equilibration Cycles:      ", adjustl ( char_label(9)  )
+			write ( 95, "(A27,5X,A20)" ) "Production Cycles:         ", adjustl ( char_label(10) )
+			write ( 95, "(A27,5X,A20)" ) "Data Saving Frequency :    ", adjustl ( char_label(11) )
+			write ( 95, "(A27,5X,A20)" ) "Adjustment Frequency:      ", adjustl ( char_label(12) )
+			write ( 95, "(A27,5X,A20)" ) "Threshold Resets:          ", adjustl ( char_label(13) )
 			write ( 95, * ) " "
 			if ( traj_check ) then
 				write ( 95, "(A33)" ) "Trajectory of particles computed."
@@ -1250,6 +1308,11 @@ program main
 				write ( 95, "(A53)" ) "Potential energy computed only for production cycles."
 			else if ( .not. potential_check ) then
 				write ( 95, "(A46)" ) "Potential energy computed only for all cycles."
+			end if
+			if ( ff_selec(1) ) then
+				write ( 95, "(A31)" ) "Square-Well potential selected."
+			else if ( ff_selec(2) ) then
+				write ( 95, "(A26)" ) "Kihara potential selected."
 			end if
 			write ( 95, * )  " "
 			write ( 95, "(A27,5X,A20,A4)")  "Simulation length:            ", &
