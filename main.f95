@@ -244,9 +244,13 @@ program main
 	call date_folders()
 
 	! ***************************************************************************************
-	! Create attractive parameter subfolders (see 'folders' module)
+	! Create attractive/repulsive parameter subfolders (see 'folders' module)
 	! ***************************************************************************************
-	call lambda_folders()
+	if ( ff_selec(1) ) then
+		call lambda_folders()
+	else if ( ff_selec(2) ) then
+		call n_folders()
+	end if
 
 	! ***************************************************************************************
 	! Initial configuration file (see 'initconfig' module)
