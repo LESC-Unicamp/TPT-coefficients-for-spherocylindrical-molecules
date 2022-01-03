@@ -186,7 +186,7 @@ program main
 	print *, " "
 	print *, "Data read successfully!         "
 	print *, "Number of particles:            ", n_particles
-	print *, "Reduced number density (κρ*):   ", rho
+	print *, "Reduced number density:         ", rho
 	print *, "Reduced temperature:            ", temp
 	print *, "Aspect ratio (L/D):             ", aspect_ratio
 	print *, "Quaternion angle:               ", quaternion_angle
