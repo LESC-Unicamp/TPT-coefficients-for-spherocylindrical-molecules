@@ -188,7 +188,7 @@ Reduced number density <code>[1+L/D]&rho;*</code> and length-to-diameter aspect 
 
 ## Initial Configuration
 <p align="justify">
-The user is allowed to select one of three crystalline structures for the initial molecular configuration at the beginning of the simulation. Structures are either stretched or pure cubic geometries depending on the spherocylindrical elongation. The available structures are: simple cube (SC), body-centered cube (BCC), or face-centered cube (FCC). Like <code>[1+L/D]&rho;*</code> and <code>L/D</code> variables, the initial molecular configuration is also provided by the user on the fly.
+The user is allowed to select one of three crystalline structures for the initial molecular configuration at the beginning of the simulation. Structures are either stretched or pure cubic geometries depending on the spherocylindrical aspect ratio. The available structures are: simple cube (SC), body-centered cube (BCC), or face-centered cube (FCC). Like <code>[1+L/D]&rho;*</code> and <code>L/D</code> variables, the initial molecular configuration is also provided by the user on the fly.
 </p>
 
 <p align="justify">
@@ -255,7 +255,7 @@ The aforementioned folders are created by executing a shell command via an intri
  command line is system-dependent and environment-dependent. Check this <a href="https://gcc.gnu.org/onlinedocs/gfortran/SYSTEM.html">link</a> for more information.</p>
 
 <p align="justify">
-File names are based on the information they hold, followed by the reduced number density and elongation parameters that were used to create them. Files with identical names
+File names are based on the information they hold, followed by the reduced number density and aspect ratio parameters that were used to create them. Files with identical names
  are always overwritten. Thus, running simulations with the same <code>[1+L/D]&rho;*</code> and <code>L/D</code> at the same date will always overwrite existing data.</p>
 
 ## Running the Code
