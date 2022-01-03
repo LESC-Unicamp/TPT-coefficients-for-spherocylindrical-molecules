@@ -1070,7 +1070,7 @@ subroutine block_averaging(flag,a1,a2,apert,dpa1,dpa2,dpapert)
 		open ( UNIT = 150, FILE = "Potential/SW/"//trim(descriptor_date)//"/Lambda_"//trim(descriptor_lamb)// &
 		&			  "/thermo_ε"//trim(descriptor_file1)//"_ρ"//trim(descriptor_file2)//".dat" )
 	else if ( ff_selec(2) ) then
-		open ( UNIT = 150, FILE = "Potential/KH/"//trim(descriptor_date)//"/n_"//trim(descriptor_lamb)// &
+		open ( UNIT = 150, FILE = "Potential/KH/"//trim(descriptor_date)//"/n_"//trim(descriptor_n)// &
 		&			  "/thermo_ε"//trim(descriptor_file1)//"_ρ"//trim(descriptor_file2)//".dat" )
 	end if
 	! Skip equilibration data points (when necessary)
