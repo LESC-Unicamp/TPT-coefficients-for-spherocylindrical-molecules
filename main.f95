@@ -1066,7 +1066,7 @@ program main
 	! Deallocation of arrays
 	! ***************************************************************************************
 	deallocate ( v, vi, vmc, vn, vm, dv )
-	deallocate ( swrange )
+	if ( allocated( swrange ) ) deallocate ( swrange )
 	deallocate ( qmc, rmc, emc )
 
 	! ***************************************************************************************
