@@ -601,7 +601,8 @@ program main
 		! Computation of potential energy of particle i (Microstate m)
 		! See 'subroutines' code for more details.
 		! *******************************************************************************
-		call compute_particle_energy(i,em,rm,vm)
+		call compute_particle_energy(i,em,rm)
+		vm(:) = vi(:)
 
 		! *******************************************************************************
 		! Random Displacement (trial move of particle i)
@@ -732,7 +733,8 @@ program main
 			! ***********************************************************************
 			! Computation of potential energy of particle i (Microstate n)
 			! ***********************************************************************
-			call compute_particle_energy(i,en,rn,vn)
+			call compute_particle_energy(i,en,rn)
+			vn(:) = vi(:)
 
 			! ***********************************************************************
 			! Computation of energy difference of microstates n and m
