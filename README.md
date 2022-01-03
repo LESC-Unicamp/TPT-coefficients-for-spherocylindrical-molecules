@@ -236,7 +236,7 @@ After choosing the crystalline structure and inserting the values of <code>[1+L/
 
 <p align="justify">
  The <code>Potential/</code> directory stores the potential energy of the perturbed system. This property is written out every <code>n_save</code> cycles. 
- The algorithm also creates two subfolders for each potential model (Square Well and Kihara) and one attractive/repulsive parameters subfolder for every selected &lambda; and <i>n</i>, respectively. The calculated potential energy is then stored on each respective
+ The algorithm also creates two subfolders for each potential model (Square Well and Kihara) and one attractive/repulsive parameter subfolder for every selected &lambda; and <i>n</i>, respectively. The calculated potential energy is then stored on each respective
  subfolder.</p>
 
 <p align="justify">
