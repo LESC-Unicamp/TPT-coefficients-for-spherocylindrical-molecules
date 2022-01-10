@@ -458,6 +458,11 @@ subroutine compute_potential_kh(shortest_d,vij)
 	m_attractive = 6.d0
 
 	! ***************************************************************************************
+	! Squared shortest distance
+	! ***************************************************************************************
+	shortest_d = dsqrt( shortest_d )
+
+	! ***************************************************************************************
 	! Pair potential for every repulsive parameter (n)
 	! ***************************************************************************************
 	!  These potentials can be computed simultaneously because the reference system remains
