@@ -1290,6 +1290,10 @@ program main
 		open ( UNIT = 95, FILE = "Simulation_Log.dat", POSITION = "append" )
 			write ( 95, * ) "________________________________________________________"
 			write ( 95, * ) " "
+			write ( 95, "(A14)" ) "Execution Date"
+			write ( 95, 700 ) date_time(1), date_time(2), date_time(3), &
+			&		  date_time(5), date_time(6), date_time(7)
+			write ( 95, * ) " "
 			write ( 95, "(A27,5X,A20)" ) "Number of Particles:       ", adjustl ( char_label(1)  )
 			write ( 95, "(A27,5X,A20)" ) "Aspect Ratio (L/D):        ", adjustl ( char_label(2)  )
 			write ( 95, "(A27,5X,A20)" ) "Reduced Number Density     ", adjustl ( char_label(3)  )
